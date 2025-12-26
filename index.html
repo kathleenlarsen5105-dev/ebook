@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>الكتاب الشامل</title>
+    
+    <style>
+        /* 1. Reset CSS */
+        * { box-sizing: border-box; touch-action: none; /* لمنع حركات المتصفح الافتراضية */ }
+
+        body {
+            background-color: #2b2b2b;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column; /* عشان البار فوق والكتاب تحت */
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* 2. شريط الأدوات المتجاوب */
+        #toolbar {
+            height: 60px;
+            background: #1a1a1a;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            z-index: 100;
+        }
+
+        .tool-group { display: flex; gap: 10px; }
+
+        button {
+            background: #444;
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        button.active { background: #007bff; font-weight: bold; }
+        button:active { transform: scale(0.95); }
+
+        /* 3. حاوية الكتاب */
+        #book-wrapper {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: calc(100vh - 60px);
+            padding: 10px;
+        }
+
+        .my-page {
+            background-color: #fdfdfd;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        /* Loading Spinner */
+        #loader {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toolbar">
+        <div class="tool-group">
+            <button id="btn-read" class="active" onclick="setMode('read')">📖 قراءة</button>
+            <button id="btn-write" onclick="setMode('write')">✏️ كتابة</button>
+        </div>
+        <div class="tool-group">
+            <button onclick="clearCurrentPage()">🗑️ مسح</button>
+        </div>
+    </div>
+
+    <div id="loader">جاري تحميل الكتاب...</div>
+
+    <div id="book-wrapper">
+        <div id="book"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
+
+    <script>
+        const pdfUrl = 'my-book.pdf'; // تأكد من اسم الملف
+        const bookElement = document.getElementById('book');
+        let pageFlip;
+        let fabricPages = []; // لتخزين كائنات Fabric
+        let appMode = 'read'; // الوضع الافتراضي
+
+        // 1. حساب أبعاد الكتاب ديناميكياً بناءً على الشاشة
+        function calculateBookSize() {
+            const wrapper = document.getElementById('book-wrapper');
+            const w = wrapper.clientWidth;
+            const h = wrapper.clientHeight;
+            
+            // لو موبايل (الشاشة بالطول)
+            if (w < 768) {
+                return { width: w - 20, height: h - 20, isMobile: true };
+            }
+            // لو لابتوب (صفحتين جنب بعض)
+            return { width: 500, height: h - 40, isMobile: false };
+        }
+
+        async function startApp() {
+            try {
+                const size = calculateBookSize();
+                
+                // إعداد PageFlip بناءً على الحجم المحسوب
+                pageFlip = new St.PageFlip(bookElement, {
+                    width: size.width,
+                    height: size.height,
+                    size: size.isMobile ? 'fixed' : 'fixed', // في الموبايل صفحة واحدة
+                    showCover: true,
+                    mobileScrollSupport: false // عشان ميتعارضش مع الرسم
+                });
+
+                const loadingTask = pdfjsLib.getDocument(pdfUrl);
+                const pdf = await loadingTask.promise;
+                document.getElementById('loader').style.display = 'none';
+
+                // إنشاء هيكل الصفحات
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const div = document.createElement('div');
+                    div.className = 'my-page';
+                    div.innerHTML = `<canvas id="f-canvas-${i}"></canvas>`;
+                    bookElement.appendChild(div);
+                }
+
+                // تحميل الصفحات في PageFlip
+                pageFlip.loadFromHTML(document.querySelectorAll('.my-page'));
+
+                // معالجة كل صفحة ووضع Fabric عليها
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const canvasId = `f-canvas-${i}`;
+                    
+                    // نضبط حجم الكانفاس نفس حجم الصفحة في PageFlip
+                    const fCanvas = new fabric.Canvas(canvasId, {
+                        width: size.width,
+                        height: size.height,
+                        selection: false // تعطيل تحديد العناصر في وضع القراءة
+                    });
+
+                    // حساب الـ Scale المناسب للـ PDF عشان يملأ الصفحة
+                    const unscaledViewport = page.getViewport({ scale: 1 });
+                    const scaleX = size.width / unscaledViewport.width;
+                    const scaleY = size.height / unscaledViewport.height;
+                    // نختار الـ Scale الأنسب عشان الصورة متتمطش
+                    const scale = Math.min(scaleX, scaleY); 
+                    const viewport = page.getViewport({ scale: scale });
+
+                    // رسم الـ PDF في Memory Canvas
+                    const hiddenCanvas = document.createElement('canvas');
+                    hiddenCanvas.width = viewport.width;
+                    hiddenCanvas.height = viewport.height;
+                    const ctx = hiddenCanvas.getContext('2d');
+                    await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+                    // وضعه كخلفية لـ Fabric
+                    const imgData = hiddenCanvas.toDataURL();
+                    fabric.Image.fromURL(imgData, function(img) {
+                        // توسيط الصورة في الصفحة
+                        fCanvas.setBackgroundImage(img, fCanvas.renderAll.bind(fCanvas), {
+                            originX: 'center',
+                            originY: 'center',
+                            left: size.width / 2,
+                            top: size.height / 2
+                        });
+                    });
+
+                    // إعدادات الفرشاة
+                    fCanvas.freeDrawingBrush.width = 5;
+                    fCanvas.freeDrawingBrush.color = "rgba(255, 235, 59, 0.6)"; // قلم تحديد أصفر
+                    fCanvas.isDrawingMode = false; // نبدأ بوضع القراءة
+
+                    fabricPages.push(fCanvas);
+                }
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loader').innerText = "خطأ في تحميل الملف: " + err.message;
+            }
+        }
+
+        // --- التحكم في الأوضاع (قراءة / كتابة) ---
+        
+        window.setMode = function(mode) {
+            appMode = mode;
+            
+            // تحديث شكل الزراير
+            document.getElementById('btn-read').className = mode === 'read' ? 'active' : '';
+            document.getElementById('btn-write').className = mode === 'write' ? 'active' : '';
+
+            // تطبيق التغيير على كل الصفحات
+            fabricPages.forEach(canvas => {
+                if (mode === 'write') {
+                    canvas.isDrawingMode = true;
+                    // هنا التريك: لما نكون بنكتب، نوقف تقليب الصفحة
+                    // مكتبة pageFlip مفيهاش stop مباشر سهل، بس ممكن نتحايل عليها
+                    // لكن Fabric بياخد الـ Touch Event الأول فالموضوع أمان
+                } else {
+                    canvas.isDrawingMode = false;
+                }
+            });
+        };
+
+        // دالة مسح الصفحة الحالية
+        window.clearCurrentPage = function() {
+            // نعرف إحنا في صفحة كام
+            const currentPageIndex = pageFlip.getCurrentPageIndex();
+            // بما أن pageFlip بيحسب الـ Index من 0
+            // ومصفوفة fabricPages بتاعتنا مترتبة نفس الترتيب
+            const currentCanvas = fabricPages[currentPageIndex];
+            
+            if(currentCanvas) {
+                // نمسح كل الرسومات اللي فوق الخلفية
+                currentCanvas.getObjects().forEach(obj => {
+                    currentCanvas.remove(obj);
+                });
+            }
+        };
+
+        // تشغيل التطبيق
+        startApp();
+
+        // تحذير عند تدوير الشاشة (لأن إعادة الحساب معقدة شوية)
+        window.addEventListener('resize', () => {
+            // في التطبيقات الكبيرة بنعمل reload أو re-init
+            // هنا ممكن نكتفي بتنبيه أو تجاهل للتجربة
+        });
+
+    </script>
+</body>
+</html>
