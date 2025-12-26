@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>الكتاب الشامل - Smart Reader</title>
+    <title>Smart Reader Pro - Glass Edition</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
@@ -13,18 +13,26 @@
 
     <style>
         :root {
-            --bg-color: #2c2c2c;
-            --sidebar-bg: #1e1e1e;
-            --accent-color: #d4af37;
-            --text-color: #e0e0e0;
-            --toolbar-height: 60px;
+            /* إعدادات الزجاج */
+            --glass-bg: rgba(255, 255, 255, 0.65); /* لون أبيض شفاف */
+            --glass-border: 1px solid rgba(255, 255, 255, 0.4);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --glass-blur: blur(16px);
+            
+            --accent-color: #2563eb;
+            --text-color: #1f2937;
+            --toolbar-height: 65px; /* زيادة بسيطة للجمالية */
         }
 
-        * { box-sizing: border-box; touch-action: pan-y; margin: 0; padding: 0; outline: none; }
+        * { box-sizing: border-box; touch-action: none; margin: 0; padding: 0; outline: none; }
 
         body {
-            background-color: var(--bg-color);
-            background-image: url("https://www.transparenttextures.com/patterns/wood-pattern.png");
+            /* خلفية ملونة لتوضيح تأثير الزجاج */
+            background-image: url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             height: 100vh;
             display: flex;
@@ -32,51 +40,96 @@
             color: var(--text-color);
         }
 
-        /* --- Sidebar --- */
+        /* --- Sidebar (Glass Style) --- */
         #sidebar {
-            width: 250px;
-            background: var(--sidebar-bg);
-            border-left: 1px solid #444;
+            width: 260px;
+            /* تأثير الزجاج */
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-left: var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            
             display: flex; flex-direction: column;
-            position: absolute; right: 0; top: var(--toolbar-height); bottom: 0;
+            position: absolute; right: 0; top: var(--toolbar-height); bottom: 20px; /* مسافة من الأسفل */
+            margin-right: 20px; /* مسافة لتبدو عائمة */
+            border-radius: 16px; /* زوايا دائرية */
+            
             z-index: 200;
-            transform: translateX(100%); transition: transform 0.3s ease;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+            transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         #sidebar.open { transform: translateX(0); }
+        
         @media (min-width: 1024px) {
-            #sidebar { position: relative; transform: translateX(0); width: 280px; }
+            #sidebar { 
+                position: relative; 
+                transform: translateX(0); 
+                width: 280px; 
+                top: 0; bottom: 0; margin: 0; 
+                border-radius: 0; 
+                background: rgba(255, 255, 255, 0.5); /* شفافية أعلى للديسك توب */
+            }
             #sidebar.collapsed { width: 0; overflow: hidden; }
         }
 
-        .sidebar-header { padding: 15px; border-bottom: 1px solid #333; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-        .toc-list { overflow-y: auto; flex: 1; padding: 10px; }
-        .toc-item { padding: 8px 10px; cursor: pointer; border-radius: 4px; font-size: 14px; margin-bottom: 2px; color: #bbb; transition: 0.2s; }
-        .toc-item:hover { background: rgba(255,255,255,0.1); color: white; }
-        .toc-item.active { background: var(--accent-color); color: #000; font-weight: bold; }
+        .sidebar-header { 
+            padding: 20px; 
+            border-bottom: var(--glass-border); 
+            font-weight: bold; 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: rgba(255,255,255,0.2); 
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .toc-list { overflow-y: auto; flex: 1; padding: 15px; }
+        .toc-item { 
+            padding: 12px; cursor: pointer; border-radius: 10px; font-size: 14px; 
+            margin-bottom: 6px; color: #374151; transition: 0.2s; 
+            display: flex; justify-content: space-between; 
+            background: rgba(255,255,255,0.4); /* خلفية خفيفة للعنصر */
+        }
+        .toc-item:hover { background: #fff; color: var(--accent-color); transform: translateX(-5px); }
+        .toc-item.active { background: var(--accent-color); color: white; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); }
 
         /* --- Main Area --- */
         #main-area { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
 
-        /* --- Toolbar --- */
+        /* --- Toolbar (Glass Style) --- */
         #toolbar {
             height: var(--toolbar-height);
-            background: linear-gradient(to bottom, #252525, #1a1a1a);
+            /* تأثير الزجاج */
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-bottom: var(--glass-border);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.4); z-index: 100;
+            padding: 0 25px; z-index: 100;
         }
-        .tool-group { display: flex; align-items: center; gap: 8px; }
-        .btn-tool {
-            background: transparent; border: 1px solid #444; color: #ccc;
-            width: 36px; height: 36px; border-radius: 6px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: 0.2s; font-size: 16px;
-        }
-        .btn-tool:hover { background: #333; color: white; border-color: #666; }
-        .btn-tool.active { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
-        .btn-tool:disabled { opacity: 0.3; cursor: not-allowed; border-color: #444; }
         
-        .color-picker { width: 30px; height: 30px; border: none; padding: 0; background: none; cursor: pointer; }
+        .tool-group { 
+            display: flex; align-items: center; gap: 12px; 
+            background: rgba(255,255,255,0.3); /* تجميع الأدوات */
+            padding: 5px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .btn-tool {
+            background: transparent; border: none; color: #4b5563;
+            width: 40px; height: 40px; border-radius: 10px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; font-size: 18px;
+        }
+        .btn-tool:hover { background: rgba(255,255,255,0.8); color: #000; transform: translateY(-2px); }
+        .btn-tool.active { 
+            background: var(--accent-color); color: white; 
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); 
+        }
+        .btn-tool:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        
+        .color-picker { width: 34px; height: 34px; border: 2px solid white; border-radius: 50%; padding: 0; cursor: pointer; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
         /* --- Book Viewport --- */
         #book-viewport {
@@ -85,20 +138,24 @@
         }
 
         .page-wrapper {
-            background-color: #fdfdfd;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.05);
+            background-color: #ffffff;
+            /* جعل الورقة تبرز فوق الخلفية الزجاجية */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); 
             overflow: hidden;
         }
 
-        /* --- Loader --- */
+        /* --- Loader (Glass Style) --- */
         #loader {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(30,30,30,0.95); z-index: 999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; color: white;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(20px);
+            z-index: 999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; color: #333;
         }
         .spinner {
-            border: 4px solid #333; border-top: 4px solid var(--accent-color);
-            border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px;
+            border: 4px solid rgba(255,255,255,0.5); border-top: 4px solid var(--accent-color);
+            border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -107,8 +164,8 @@
 
     <div id="sidebar">
         <div class="sidebar-header">
-            <span>📑 فهرس الكتاب</span>
-            <button class="btn-tool" onclick="toggleSidebar()" style="width:25px;height:25px;font-size:12px"><i class="fas fa-times"></i></button>
+            <span> المحتويات</span>
+            <button class="btn-tool" onclick="toggleSidebar()" style="width:30px;height:30px;font-size:14px;background:rgba(0,0,0,0.05)"><i class="fas fa-times"></i></button>
         </div>
         <div class="toc-list" id="toc-container"></div>
     </div>
@@ -116,9 +173,9 @@
     <div id="main-area">
         <div id="toolbar">
             <div class="tool-group">
-                <button class="btn-tool" onclick="toggleSidebar()" title="الفهرس"><i class="fas fa-list"></i></button>
-                <div style="width:1px; height:20px; background:#444; margin:0 5px;"></div>
-                <button class="btn-tool active" id="btn-hand" onclick="setMode('read')" title="قراءة"><i class="fas fa-hand-paper"></i></button>
+                <button class="btn-tool" onclick="toggleSidebar()" title="الفهرس"><i class="fas fa-bars"></i></button>
+                <div style="width:1px; height:24px; background:rgba(0,0,0,0.1);"></div>
+                <button class="btn-tool active" id="btn-hand" onclick="setMode('read')" title="قراءة"><i class="fas fa-hand-pointer"></i></button>
                 <button class="btn-tool" id="btn-pen" onclick="setMode('draw', 'pen')" title="قلم"><i class="fas fa-pen"></i></button>
                 <button class="btn-tool" id="btn-highlight" onclick="setMode('draw', 'highlight')" title="قلم تمييز"><i class="fas fa-highlighter"></i></button>
                 <button class="btn-tool" id="btn-eraser" onclick="setMode('erase')" title="ممحاة"><i class="fas fa-eraser"></i></button>
@@ -131,15 +188,17 @@
             </div>
 
             <div class="tool-group">
+                <button class="btn-tool" onclick="toggleFullScreen()" title="تكبير / ملء الشاشة"><i class="fas fa-expand"></i></button>
+                <div style="width:1px; height:24px; background:rgba(0,0,0,0.1);"></div>
                 <button class="btn-tool" id="btn-prev" onclick="bookFlip.flipPrev()"><i class="fas fa-chevron-right"></i></button>
-                <span id="page-num" style="font-size:14px; color:#aaa; min-width:60px; text-align:center;">0 / 0</span>
+                <span id="page-num" style="font-size:15px; color:#4b5563; min-width:60px; text-align:center; font-weight:bold;">0 / 0</span>
                 <button class="btn-tool" id="btn-next" onclick="bookFlip.flipNext()"><i class="fas fa-chevron-left"></i></button>
             </div>
         </div>
 
         <div id="loader">
             <div class="spinner"></div>
-            <div id="loading-text">جاري تحميل الكتاب...</div>
+            <div id="loading-text" style="font-weight:bold; font-size:18px;">جاري إعداد المكتبة الزجاجية...</div>
         </div>
 
         <div id="book-viewport">
@@ -157,12 +216,11 @@
         let currentTool = 'pen';
         let isMobile = window.innerWidth < 768;
 
-        // === 1. التهيئة وحساب الأبعاد ===
         async function initApp() {
             try {
                 const container = document.getElementById('book-viewport');
-                const maxWidth = container.clientWidth - 20; 
-                const maxHeight = container.clientHeight - 20;
+                const maxWidth = container.clientWidth - 40; 
+                const maxHeight = container.clientHeight - 40;
 
                 const loadingTask = pdfjsLib.getDocument(PDF_URL);
                 pdfDoc = await loadingTask.promise;
@@ -205,17 +263,18 @@
                     width: pageWidth,
                     height: pageHeight,
                     size: 'fixed',
-                    maxShadowOpacity: 0.5,
+                    maxShadowOpacity: 0.3,
                     showCover: true,
-                    usePortrait: isMobile
+                    usePortrait: isMobile,
+                    startPage: 0
                 });
 
                 bookFlip.loadFromHTML(document.querySelectorAll('.page-wrapper'));
 
-                document.getElementById('loading-text').innerText = "جاري رسم الصفحات بأعلى دقة...";
+                document.getElementById('loading-text').innerText = "جاري المعالجة الرقمية...";
                 for (let i = 1; i <= pdfDoc.numPages; i++) {
                     await renderPageOnFabric(i, pageWidth, pageHeight);
-                    if(i % 5 === 0) document.getElementById('loading-text').innerText = `تم تحميل ${i} من ${pdfDoc.numPages}`;
+                    if(i % 5 === 0) document.getElementById('loading-text').innerText = `تمت معالجة ${i} من ${pdfDoc.numPages}`;
                 }
 
                 await buildTableOfContents();
@@ -233,24 +292,13 @@
             }
         }
 
-        // === 2. الرسم بدقة فائقة (تم التعديل) ===
         async function renderPageOnFabric(pageNum, targetWidth, targetHeight) {
             const page = await pdfDoc.getPage(pageNum);
-            
-            // --- التعديل هنا لتحسين الدقة على الموبايل ---
-            
-            // 1. حساب كثافة الشاشة (Pixel Ratio)
-            // الموبايلات الحديثة قد تكون 2 أو 3
-            const pixelRatio = window.devicePixelRatio || 1;
-            
-            // 2. زيادة المعامل للموبايل لضمان عدم البكسلة
-            // في الموبايل نضرب في 3 (أو 4) لجعل الصورة كبيرة جداً ثم نصغرها CSS
             const qualityFactor = isMobile ? 3 : 2; 
 
-            // حساب المقياس بناءً على العرض المطلوب * الجودة
             const unscaledViewport = page.getViewport({scale: 1});
             const scaleBase = targetWidth / unscaledViewport.width;
-            const finalScale = scaleBase * qualityFactor; // هذا هو سر الدقة
+            const finalScale = scaleBase * qualityFactor;
 
             const viewport = page.getViewport({ scale: finalScale });
 
@@ -265,17 +313,16 @@
             const fCanvas = new fabric.Canvas(canvasId, {
                 width: targetWidth,
                 height: targetHeight,
-                selection: false
+                selection: false,
+                renderOnAddRemove: false 
             });
 
-            // تحويل الصورة بجودة 100% (1.0) بدلاً من 0.8 لمنع التشويش
             const imgData = hiddenCanvas.toDataURL('image/jpeg', 1.0); 
             
             return new Promise((resolve) => {
                 fabric.Image.fromURL(imgData, function(img) {
                     fCanvas.setBackgroundImage(img, fCanvas.renderAll.bind(fCanvas), {
                         originX: 'left', originY: 'top',
-                        // نقوم بضغط الصورة الكبيرة لتناسب حجم الكانفاس الصغير
                         scaleX: targetWidth / viewport.width,
                         scaleY: targetHeight / viewport.height
                     });
@@ -288,12 +335,16 @@
             });
         }
 
-        // === 3. أدوات التحكم ===
+        function stopEventPropagation(e) {
+            if(currentMode !== 'read') {
+                e.stopPropagation(); 
+            }
+        }
+
         window.setMode = function(mode, toolType) {
             currentMode = mode;
             
             document.querySelectorAll('.btn-tool').forEach(b => b.classList.remove('active'));
-            
             const prevBtn = document.getElementById('btn-prev');
             const nextBtn = document.getElementById('btn-next');
 
@@ -311,7 +362,6 @@
                     document.getElementById('btn-eraser').classList.add('active');
                     document.getElementById('drawing-options').style.display = 'none';
                 }
-
                 prevBtn.disabled = true;
                 nextBtn.disabled = true;
             }
@@ -319,28 +369,32 @@
             fabricPages.forEach(canvas => {
                 if (!canvas) return;
                 
+                const upperCanvasEl = canvas.upperCanvasEl;
+
+                upperCanvasEl.removeEventListener('mousedown', stopEventPropagation);
+                upperCanvasEl.removeEventListener('touchstart', stopEventPropagation);
+
                 if (mode === 'read') {
                     canvas.isDrawingMode = false;
                     canvas.defaultCursor = 'grab';
                     canvas.off('mouse:down');
-                } else if (mode === 'draw') {
-                    canvas.isDrawingMode = true;
-                    canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
-                    currentTool = toolType;
-                    updateBrush(canvas);
-                    
-                    canvas.on('mouse:down', function(opt) {
-                        opt.e.stopPropagation(); 
-                    });
+                } else {
+                    upperCanvasEl.addEventListener('mousedown', stopEventPropagation);
+                    upperCanvasEl.addEventListener('touchstart', stopEventPropagation);
 
-                } else if (mode === 'erase') {
-                    canvas.isDrawingMode = false;
-                    canvas.defaultCursor = 'crosshair';
-                    canvas.off('mouse:down'); 
-                    canvas.on('mouse:down', function(opt) {
-                        opt.e.stopPropagation();
-                        if (currentMode === 'erase' && opt.target) canvas.remove(opt.target);
-                    });
+                    if (mode === 'draw') {
+                        canvas.isDrawingMode = true;
+                        canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+                        currentTool = toolType;
+                        updateBrush(canvas);
+                    } else if (mode === 'erase') {
+                        canvas.isDrawingMode = false;
+                        canvas.defaultCursor = 'crosshair';
+                        canvas.off('mouse:down'); 
+                        canvas.on('mouse:down', function(opt) {
+                            if (currentMode === 'erase' && opt.target) canvas.remove(opt.target);
+                        });
+                    }
                 }
             });
         };
@@ -365,10 +419,23 @@
         };
 
         window.clearCurrentPage = function() {
-            alert("لحذف الرسومات: اختر الممحاة ثم اضغط على الرسمة التي تريد حذفها.");
+            if(confirm("هل أنت متأكد من مسح جميع الرسومات في هذه الصفحة؟")) {
+                 const currentPageIndex = bookFlip.getCurrentPageIndex();
+                 if(fabricPages[currentPageIndex]) fabricPages[currentPageIndex].clear(); 
+                 alert("نصيحة: استخدم الممحاة لحذف أجزاء محددة بدقة.");
+            }
+        };
+        
+        window.toggleFullScreen = function() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
         };
 
-        // === 4. الفهرس والواجهة ===
         async function buildTableOfContents() {
             const tocContainer = document.getElementById('toc-container');
             const outline = await pdfDoc.getOutline();
@@ -378,10 +445,9 @@
                 outline.forEach(item => {
                     const div = document.createElement('div');
                     div.className = 'toc-item';
-                    div.innerText = item.title;
+                    div.innerHTML = `<span>${item.title}</span>`;
                     div.onclick = async () => {
                         if(currentMode !== 'read') return;
-
                         if (item.dest) {
                            const dest = await pdfDoc.getDestination(item.dest);
                            const pageIndex = await pdfDoc.getPageIndex(dest[0]);
@@ -395,7 +461,7 @@
                 for(let i=0; i < pdfDoc.numPages; i++) {
                     const div = document.createElement('div');
                     div.className = 'toc-item';
-                    div.innerText = `الصفحة ${i+1}`;
+                    div.innerHTML = `<span>P${i+1}</span>`;
                     div.onclick = () => {
                          if(currentMode !== 'read') return;
                         bookFlip.flip(i);
