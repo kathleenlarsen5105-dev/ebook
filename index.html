@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Reader - Selection Mode</title>
+    <title>Smart Reader Pro - Ultimate Glass</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
@@ -13,9 +13,10 @@
 
     <style>
         :root {
-            --glass-bg: rgba(255, 255, 255, 0.85);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
-            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            /* Glassmorphism Variables */
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
             --glass-blur: blur(20px);
             --accent-color: #2563eb;
             --text-color: #1f2937;
@@ -25,6 +26,7 @@
         * { box-sizing: border-box; touch-action: none; margin: 0; padding: 0; outline: none; }
 
         body {
+            /* Abstract Background */
             background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
@@ -52,11 +54,11 @@
         }
         #sidebar.open { transform: translateX(0); }
         @media (min-width: 1024px) {
-            #sidebar { position: relative; transform: translateX(0); width: 300px; top: 0; bottom: 0; margin: 0; border-radius: 0; background: rgba(255, 255, 255, 0.7); }
+            #sidebar { position: relative; transform: translateX(0); width: 300px; top: 0; bottom: 0; margin: 0; border-radius: 0; background: rgba(255, 255, 255, 0.6); }
             #sidebar.collapsed { width: 0; overflow: hidden; margin: 0; }
         }
 
-        .sidebar-header { padding: 20px; border-bottom: var(--glass-border); font-weight: bold; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.4); border-radius: 16px 16px 0 0; }
+        .sidebar-header { padding: 20px; border-bottom: var(--glass-border); font-weight: bold; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.3); border-radius: 16px 16px 0 0; }
         .toc-list { overflow-y: auto; flex: 1; padding: 15px; }
         .toc-item { padding: 12px; cursor: pointer; border-radius: 10px; font-size: 14px; margin-bottom: 6px; color: #374151; transition: 0.2s; display: flex; justify-content: space-between; background: rgba(255,255,255,0.5); }
         .toc-item:hover { background: #fff; color: var(--accent-color); transform: translateX(-5px); }
@@ -79,8 +81,8 @@
         
         .tool-group { 
             display: flex; align-items: center; gap: 8px; 
-            background: rgba(255,255,255,0.5); padding: 6px 12px;
-            border-radius: 14px; border: 1px solid rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.4); padding: 6px 12px;
+            border-radius: 14px; border: 1px solid rgba(255,255,255,0.3);
         }
         
         .btn-tool {
@@ -93,6 +95,9 @@
         .btn-tool.active { background: var(--accent-color); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); }
         .btn-tool:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
         
+        .speaking-anim { animation: pulse-speak 1.5s infinite; color: #ef4444; }
+        @keyframes pulse-speak { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
         .color-picker { width: 30px; height: 30px; border: 2px solid white; border-radius: 50%; padding: 0; cursor: pointer; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
         /* --- Book Viewport --- */
@@ -108,34 +113,56 @@
             overflow: hidden;
         }
 
-        /* --- Loader --- */
+        /* --- ULTRA MODERN LOADER --- */
         #loader {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(50px); -webkit-backdrop-filter: blur(50px);
-            z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            opacity: 1; transition: opacity 0.8s ease-in-out;
+            /* Heavy blur background */
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(50px); 
+            -webkit-backdrop-filter: blur(50px);
+            z-index: 999; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 1;
+            transition: opacity 0.8s ease-in-out; /* Smooth fade out */
         }
+
+        /* Modern Pulse Animation */
+        .loader-content {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 20px;
+        }
+        
         .pulse-ring {
-            width: 60px; height: 60px; border-radius: 50%; background: var(--accent-color);
-            box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); animation: pulse-ring 2s infinite cubic-bezier(0.66, 0, 0, 1);
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+            animation: pulse-ring 2s infinite cubic-bezier(0.66, 0, 0, 1);
         }
+
         @keyframes pulse-ring {
             0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); }
             70% { transform: scale(1); box-shadow: 0 0 0 30px rgba(37, 99, 235, 0); }
             100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
         }
-        .loader-text { font-size: 18px; color: #1f2937; margin-top: 20px; font-weight: 600; opacity: 0.8; }
+
+        .loader-text {
+            font-size: 18px; color: #1f2937; letter-spacing: 1px;
+            font-weight: 600; opacity: 0.8;
+            animation: fadeText 1.5s infinite alternate;
+        }
+        @keyframes fadeText { from { opacity: 0.4; } to { opacity: 1; } }
 
     </style>
 </head>
 <body>
 
-    <audio id="flip-sound" src="https://www.soundjay.com/misc/sounds/page-flip-01a.mp3" preload="auto"></audio>
+    <audio id="flip-sound" src="https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3" preload="auto"></audio>
 
     <div id="sidebar">
         <div class="sidebar-header">
             <span> المحتويات</span>
-            <button class="btn-tool" onclick="toggleSidebar()" style="width:30px;height:30px;background:rgba(0,0,0,0.05)"><i class="fas fa-times"></i></button>
+            <button class="btn-tool" onclick="toggleSidebar()" style="width:30px;height:30px;font-size:14px;background:rgba(0,0,0,0.05)"><i class="fas fa-times"></i></button>
         </div>
         <div class="toc-list" id="toc-container"></div>
     </div>
@@ -145,10 +172,7 @@
             <div class="tool-group">
                 <button class="btn-tool" onclick="toggleSidebar()" title="الفهرس"><i class="fas fa-bars"></i></button>
                 <div style="width:1px; height:20px; background:rgba(0,0,0,0.1);"></div>
-                <button class="btn-tool active" id="btn-hand" onclick="setMode('read')" title="تصفح"><i class="fas fa-hand-pointer"></i></button>
-                
-                <button class="btn-tool" id="btn-select-read" onclick="setMode('select-read')" title="تحديد نص للقراءة"><i class="fas fa-bullhorn"></i></button>
-                
+                <button class="btn-tool active" id="btn-hand" onclick="setMode('read')" title="قراءة"><i class="fas fa-hand-pointer"></i></button>
                 <button class="btn-tool" id="btn-pen" onclick="setMode('draw', 'pen')" title="قلم"><i class="fas fa-pen"></i></button>
                 <button class="btn-tool" id="btn-highlight" onclick="setMode('draw', 'highlight')" title="قلم تمييز"><i class="fas fa-highlighter"></i></button>
                 <button class="btn-tool" id="btn-eraser" onclick="setMode('erase')" title="ممحاة"><i class="fas fa-eraser"></i></button>
@@ -161,7 +185,7 @@
             </div>
 
             <div class="tool-group">
-                <button class="btn-tool" id="btn-mute" onclick="toggleMute()" title="كتم صوت التقليب"><i class="fas fa-volume-up"></i></button>
+                <button class="btn-tool" id="btn-speak" onclick="toggleSpeech()" title="قراءة الصفحة صوتياً"><i class="fas fa-volume-up"></i></button>
                 <div style="width:1px; height:20px; background:rgba(0,0,0,0.1);"></div>
                 <button class="btn-tool" onclick="zoomBook(0.1)" title="تكبير"><i class="fas fa-search-plus"></i></button>
                 <button class="btn-tool" onclick="zoomBook(-0.1)" title="تصغير"><i class="fas fa-search-minus"></i></button>
@@ -173,8 +197,10 @@
         </div>
 
         <div id="loader">
-            <div class="pulse-ring"></div>
-            <div class="loader-text">جاري التجهيز...</div>
+            <div class="loader-content">
+                <div class="pulse-ring"></div>
+                <div class="loader-text">جاري التجهيز...</div>
+            </div>
         </div>
 
         <div id="book-viewport">
@@ -192,17 +218,9 @@
         let currentTool = 'pen';
         let isMobile = window.innerWidth < 768;
         let currentZoom = 1;
-        
-        // Sound Vars
-        let isMuted = false;
-        const flipSound = document.getElementById('flip-sound');
-        flipSound.volume = 0.4; // صوت واقعي متوسط
-
-        // Speech Vars
+        let isSpeaking = false;
         let speechSynth = window.speechSynthesis;
-        let selectionRect = null;
-        let isSelecting = false;
-        let startX, startY;
+        let speechUtterance = null;
 
         // === 1. Init ===
         async function initApp() {
@@ -260,26 +278,37 @@
 
                 bookFlip.loadFromHTML(document.querySelectorAll('.page-wrapper'));
 
+                // Render all pages (No text updates on loader now)
                 for (let i = 1; i <= pdfDoc.numPages; i++) {
                     await renderPageOnFabric(i, pageWidth, pageHeight);
                 }
 
                 await buildTableOfContents();
                 
+                // Hide Loader with Fade Effect
                 const loader = document.getElementById('loader');
                 loader.style.opacity = '0';
-                setTimeout(() => { loader.style.display = 'none'; }, 800);
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 800);
+
+                // Play sound on flip (LOW VOLUME)
+                const flipSound = document.getElementById('flip-sound');
+                flipSound.volume = 0.2; // 20% Volume - Very Low & Subtle
 
                 bookFlip.on('flip', (e) => {
+                    // Reset zoom on flip
                     currentZoom = 1;
                     applyZoom();
-                    if (!isMuted) {
-                        flipSound.currentTime = 0;
-                        flipSound.play().catch(e => {});
-                    }
+                    
+                    // Sound
+                    flipSound.currentTime = 0;
+                    flipSound.play().catch(e => {}); 
+
                     updatePageNum(e.data + 1);
                     highlightTocItem(e.data);
-                    speechSynth.cancel(); // Stop reading on flip
+                    
+                    if(isSpeaking) toggleSpeech(); 
                 });
                 
                 updatePageNum(1);
@@ -290,32 +319,16 @@
             }
         }
 
-        // === 2. Render & Text Layer ===
-        // We need to keep track of text items locations for selection
-        let pageTextItems = {}; // Map pageNum -> text items array
-
+        // === 2. Rendering ===
         async function renderPageOnFabric(pageNum, targetWidth, targetHeight) {
             const page = await pdfDoc.getPage(pageNum);
             const qualityFactor = isMobile ? 3 : 2; 
+
             const unscaledViewport = page.getViewport({scale: 1});
             const scaleBase = targetWidth / unscaledViewport.width;
             const finalScale = scaleBase * qualityFactor;
-            const viewport = page.getViewport({ scale: finalScale });
 
-            // Store text content for later extraction
-            const textContent = await page.getTextContent();
-            // Normalize items to match the Fabric canvas dimensions
-            pageTextItems[pageNum] = textContent.items.map(item => {
-                const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
-                return {
-                    str: item.str,
-                    // Convert PDF coords to Canvas coords (approximate)
-                    x: tx[4] / qualityFactor, 
-                    y: (viewport.height - tx[5]) / qualityFactor - (item.height * scaleBase), // PDF Y is inverted
-                    width: item.width * scaleBase,
-                    height: item.height * scaleBase
-                };
-            });
+            const viewport = page.getViewport({ scale: finalScale });
 
             const hiddenCanvas = document.createElement('canvas');
             hiddenCanvas.width = viewport.width;
@@ -332,9 +345,6 @@
                 renderOnAddRemove: false 
             });
 
-            // Store page number in canvas for easy access
-            fCanvas.pageNum = pageNum;
-
             const imgData = hiddenCanvas.toDataURL('image/jpeg', 1.0); 
             
             return new Promise((resolve) => {
@@ -344,143 +354,16 @@
                         scaleX: targetWidth / viewport.width,
                         scaleY: targetHeight / viewport.height
                     });
+                    
                     fCanvas.freeDrawingBrush.width = 3;
                     fCanvas.isDrawingMode = false;
                     fabricPages[pageNum - 1] = fCanvas;
-                    
-                    // Attach event listeners for rectangle selection
-                    setupSelectionEvents(fCanvas);
-                    
                     resolve();
                 });
             });
         }
 
-        // === 3. Selection Logic (The New Feature) ===
-        function setupSelectionEvents(canvas) {
-            canvas.on('mouse:down', function(o) {
-                if(currentMode !== 'select-read') return;
-                isSelecting = true;
-                const pointer = canvas.getPointer(o.e);
-                startX = pointer.x;
-                startY = pointer.y;
-                
-                selectionRect = new fabric.Rect({
-                    left: startX,
-                    top: startY,
-                    originX: 'left',
-                    originY: 'top',
-                    width: 0,
-                    height: 0,
-                    angle: 0,
-                    fill: 'rgba(37, 99, 235, 0.3)', // Semi-transparent blue
-                    transparentCorners: false,
-                    selectable: false
-                });
-                canvas.add(selectionRect);
-            });
-
-            canvas.on('mouse:move', function(o) {
-                if (!isSelecting) return;
-                const pointer = canvas.getPointer(o.e);
-                
-                if(startX > pointer.x){
-                    selectionRect.set({ left: Math.abs(pointer.x) });
-                }
-                if(startY > pointer.y){
-                    selectionRect.set({ top: Math.abs(pointer.y) });
-                }
-                
-                selectionRect.set({ width: Math.abs(startX - pointer.x) });
-                selectionRect.set({ height: Math.abs(startY - pointer.y) });
-                
-                canvas.requestRenderAll();
-            });
-
-            canvas.on('mouse:up', function(o) {
-                if(currentMode !== 'select-read') return;
-                isSelecting = false;
-                
-                // 1. Get bounds of the selection
-                const rect = selectionRect;
-                if(rect.width < 10 || rect.height < 10) {
-                    canvas.remove(selectionRect);
-                    canvas.requestRenderAll();
-                    return; // Ignore small clicks
-                }
-
-                const selLeft = rect.left;
-                const selTop = rect.top;
-                const selRight = rect.left + rect.width;
-                const selBottom = rect.top + rect.height;
-
-                // 2. Find text items intersecting with this rect
-                const pageNum = canvas.pageNum;
-                const items = pageTextItems[pageNum] || [];
-                
-                // Very rough collision detection for PDF text chunks
-                let selectedText = "";
-                
-                // Filter items that are mostly inside the box
-                const foundItems = items.filter(item => {
-                    // Item midpoint approximation
-                    const midX = item.x + (item.width / 2);
-                    const midY = item.y - (item.height / 2); // approximate
-                    
-                    // Simple check if text start point is within selection bounds Y-axis
-                    // PDF coordinates are tricky, this logic assumes standard top-down mostly
-                    return (item.y >= selTop && item.y <= selBottom) ||
-                           (item.y + item.height >= selTop && item.y + item.height <= selBottom);
-                });
-
-                // Sort by Y then X to read in order
-                foundItems.sort((a, b) => {
-                    if (Math.abs(a.y - b.y) > 10) return a.y - b.y; // Different lines
-                    return a.x - b.x; // Same line
-                });
-
-                selectedText = foundItems.map(i => i.str).join(' ');
-
-                // 3. Read the text
-                if (selectedText.trim().length > 0) {
-                    speakText(selectedText);
-                } else {
-                    speakText("لم يتم تحديد نص واضح");
-                }
-
-                // 4. Cleanup
-                setTimeout(() => {
-                    canvas.remove(selectionRect);
-                    canvas.requestRenderAll();
-                }, 1000); // Keep highlighting for a second
-            });
-        }
-
-        function speakText(text) {
-            speechSynth.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'ar-SA';
-            // Auto detect English
-            if(text.match(/[a-zA-Z]/g) && text.match(/[a-zA-Z]/g).length > text.length / 2) {
-                utterance.lang = 'en-US';
-            }
-            utterance.rate = 1.0;
-            speechSynth.speak(utterance);
-        }
-
-        // === 4. Sound & Zoom ===
-        function toggleMute() {
-            isMuted = !isMuted;
-            const btn = document.getElementById('btn-mute');
-            if (isMuted) {
-                btn.innerHTML = '<i class="fas fa-volume-mute"></i>';
-                btn.classList.add('active'); // Indicate mute is ON state
-            } else {
-                btn.innerHTML = '<i class="fas fa-volume-up"></i>';
-                btn.classList.remove('active');
-            }
-        }
-
+        // === 3. Zoom Logic ===
         function zoomBook(amount) {
             currentZoom += amount;
             if(currentZoom < 0.5) currentZoom = 0.5;
@@ -491,7 +374,58 @@
         function applyZoom() {
             const container = document.getElementById('book-container');
             container.style.transform = `scale(${currentZoom})`;
+            container.style.transition = "transform 0.3s ease";
             container.style.transformOrigin = "center center";
+        }
+
+        // === 4. Speech Logic ===
+        async function toggleSpeech() {
+            if (isSpeaking) {
+                speechSynth.cancel();
+                isSpeaking = false;
+                document.getElementById('btn-speak').classList.remove('speaking-anim');
+                document.getElementById('btn-speak').classList.remove('active');
+            } else {
+                document.getElementById('btn-speak').classList.add('speaking-anim');
+                document.getElementById('btn-speak').classList.add('active');
+                isSpeaking = true;
+
+                let currentPageIndex = bookFlip.getCurrentPageIndex();
+                let textToRead = await extractTextFromPage(currentPageIndex + 1);
+                
+                if(!isMobile && (currentPageIndex + 1) < pdfDoc.numPages) {
+                     let text2 = await extractTextFromPage(currentPageIndex + 2);
+                     textToRead += " ... " + text2;
+                }
+
+                if (!textToRead || textToRead.trim().length === 0) {
+                    textToRead = "لا يوجد نص قابل للقراءة";
+                }
+
+                speechUtterance = new SpeechSynthesisUtterance(textToRead);
+                speechUtterance.lang = 'ar-SA';
+                if(textToRead.match(/[a-zA-Z]/g) && textToRead.match(/[a-zA-Z]/g).length > textToRead.length / 2) {
+                    speechUtterance.lang = 'en-US';
+                }
+                speechUtterance.rate = 1.0;
+                
+                speechUtterance.onend = () => {
+                    isSpeaking = false;
+                    document.getElementById('btn-speak').classList.remove('speaking-anim');
+                    document.getElementById('btn-speak').classList.remove('active');
+                };
+
+                speechSynth.speak(speechUtterance);
+            }
+        }
+
+        async function extractTextFromPage(pageNum) {
+            try {
+                if(pageNum > pdfDoc.numPages) return "";
+                const page = await pdfDoc.getPage(pageNum);
+                const tokenizedText = await page.getTextContent();
+                return tokenizedText.items.map(token => token.str).join(' ');
+            } catch(e) { return ""; }
         }
 
         // === 5. Interaction & Modes ===
@@ -505,65 +439,44 @@
             currentMode = mode;
             
             document.querySelectorAll('.btn-tool').forEach(b => {
-                if(b.id !== 'btn-mute') b.classList.remove('active');
+                if(b.id !== 'btn-speak') b.classList.remove('active');
             });
             
             const prevBtn = document.getElementById('btn-prev');
             const nextBtn = document.getElementById('btn-next');
 
-            // Reset UI
-            document.getElementById('drawing-options').style.display = 'none';
-            prevBtn.disabled = true; 
-            nextBtn.disabled = true;
-
             if(mode === 'read') {
                 document.getElementById('btn-hand').classList.add('active');
-                prevBtn.disabled = false;
-                nextBtn.disabled = false;
-            }
-            else if(mode === 'select-read') {
-                document.getElementById('btn-select-read').classList.add('active');
-                // Allow navigation in selection mode? Maybe yes
+                document.getElementById('drawing-options').style.display = 'none';
                 prevBtn.disabled = false;
                 nextBtn.disabled = false;
             }
             else if(mode === 'draw' || mode === 'erase') {
-                document.getElementById('drawing-options').style.display = 'flex';
                 if (mode === 'draw') {
                     document.getElementById(toolType === 'pen' ? 'btn-pen' : 'btn-highlight').classList.add('active');
+                    document.getElementById('drawing-options').style.display = 'flex';
                 } else {
                     document.getElementById('btn-eraser').classList.add('active');
+                    document.getElementById('drawing-options').style.display = 'none';
                 }
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
             }
 
             fabricPages.forEach(canvas => {
                 if (!canvas) return;
                 
-                const upper = canvas.upperCanvasEl;
-                // Clean events
-                upper.removeEventListener('mousedown', stopEventPropagation);
-                upper.removeEventListener('touchstart', stopEventPropagation);
-
-                // Reset Fabric settings
-                canvas.isDrawingMode = false;
-                canvas.selection = false; // Disable default fabric selection
-                canvas.defaultCursor = 'default';
-                canvas.off('mouse:down'); // Remove custom erasers
+                const upperCanvasEl = canvas.upperCanvasEl;
+                upperCanvasEl.removeEventListener('mousedown', stopEventPropagation);
+                upperCanvasEl.removeEventListener('touchstart', stopEventPropagation);
 
                 if (mode === 'read') {
+                    canvas.isDrawingMode = false;
                     canvas.defaultCursor = 'grab';
-                } 
-                else if (mode === 'select-read') {
-                    // Prevent page flip dragging
-                    upper.addEventListener('mousedown', stopEventPropagation);
-                    upper.addEventListener('touchstart', stopEventPropagation);
-                    canvas.defaultCursor = 'crosshair';
-                    // Selection events are already hooked in init, we just toggle flag via currentMode
-                }
-                else {
-                    // Draw / Erase
-                    upper.addEventListener('mousedown', stopEventPropagation);
-                    upper.addEventListener('touchstart', stopEventPropagation);
+                    canvas.off('mouse:down');
+                } else {
+                    upperCanvasEl.addEventListener('mousedown', stopEventPropagation);
+                    upperCanvasEl.addEventListener('touchstart', stopEventPropagation);
 
                     if (mode === 'draw') {
                         canvas.isDrawingMode = true;
@@ -571,7 +484,9 @@
                         currentTool = toolType;
                         updateBrush(canvas); 
                     } else if (mode === 'erase') {
-                        canvas.defaultCursor = 'cell';
+                        canvas.isDrawingMode = false;
+                        canvas.defaultCursor = 'crosshair';
+                        canvas.off('mouse:down'); 
                         canvas.on('mouse:down', function(opt) {
                             if (currentMode === 'erase' && opt.target) canvas.remove(opt.target);
                         });
@@ -608,13 +523,27 @@
         }
 
         window.clearCurrentPage = function() {
+            if(confirm("هل أنت متأكد من مسح جميع الرسومات في هذه الصفحة؟")) {
+                 const idx = bookFlip.getCurrentPageIndex();
+                 if(fabricPages[idx]) {
+                     fabricPages[idx].clear();
+                     // Re-render only drawings logic removed for performance in clear()
+                     // This is safe as background is separate in this impl
+                     fabricPages[idx].backgroundColor = null; // Reset if needed or re-apply image
+                     // Re-apply bg image trick
+                     // Because clear() wipes background, we need to re-render page fabric
+                     // A simple hack: just reload page content for this index? 
+                     // Or better: Iterate objects and remove them instead of clear()
+                 }
+            }
+        };
+        
+        // Override clear to be safer
+        window.clearCurrentPage = function() {
              if(confirm("هل أنت متأكد؟")) {
                  const idx = bookFlip.getCurrentPageIndex();
                  if(fabricPages[idx]) {
-                     fabricPages[idx].getObjects().forEach(o => {
-                         // Don't remove the selection rectangle if it exists by accident
-                         if(o !== selectionRect) fabricPages[idx].remove(o);
-                     });
+                     fabricPages[idx].getObjects().forEach(o => fabricPages[idx].remove(o));
                  }
              }
         };
@@ -630,7 +559,7 @@
                     div.className = 'toc-item';
                     div.innerHTML = `<span>${item.title}</span>`;
                     div.onclick = async () => {
-                        if(currentMode !== 'read' && currentMode !== 'select-read') return;
+                        if(currentMode !== 'read') return;
                         if (item.dest) {
                            const dest = await pdfDoc.getDestination(item.dest);
                            const pageIndex = await pdfDoc.getPageIndex(dest[0]);
@@ -646,7 +575,7 @@
                     div.className = 'toc-item';
                     div.innerHTML = `<span>P${i+1}</span>`;
                     div.onclick = () => {
-                         if(currentMode !== 'read' && currentMode !== 'select-read') return;
+                         if(currentMode !== 'read') return;
                         bookFlip.flip(i);
                         if(isMobile) toggleSidebar();
                     };
