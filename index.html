@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Reader Pro - Ultimate Glass</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="top-sensor" onclick="showUI()"></div>
+    <div id="bottom-sensor" onclick="showUI()"></div>
+
+    <audio id="flip-sound" src="https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3" preload="auto"></audio>
+
+    <div id="video-popup">
+        <div class="video-header">
+            <span><i class="fas fa-video"></i> شرح عملي</span>
+            <button onclick="closeVideo()"><i class="fas fa-times"></i></button>
+        </div>
+        <video id="page-video" controls>
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <button id="magic-video-btn" onclick="openVideoModal()">
+        <div class="icon-pulse">
+            <i class="fas fa-play"></i>
+        </div>
+        <span>عرض شرح</span>
+    </button>
+
+    <div id="cinema-modal" onclick="closeCinemaModal(event)">
+        <div class="cinema-content">
+            <button class="close-cinema" onclick="closeCinemaModal(event)"><i class="fas fa-times"></i></button>
+            <h3><i class="fas fa-heartbeat"></i> خطوات الإسعافات الأولية</h3>
+            
+            <video id="promo-video" controls>
+                <source src="my-video.mp4" type="video/mp4">
+                
+                متصفحك لا يدعم الفيديو.
+            </video>
+        </div>
+    </div>
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <span> المحتويات</span>
+            <button class="btn-tool" onclick="toggleSidebar()" style="width:30px;height:30px;font-size:14px;background:rgba(0,0,0,0.05)"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div id="bookmarks-container" style="display:none; border-bottom:1px solid rgba(0,0,0,0.1); padding-bottom:10px;">
+            <div style="padding:10px 15px; font-size:13px; font-weight:bold; color:#2563eb;">
+                <i class="fas fa-bookmark"></i> العلامات المحفوظة
+            </div>
+            <div id="bookmarks-list" class="toc-list" style="max-height:150px; overflow-y:auto;"></div>
+        </div>
+
+        <div class="toc-list" id="toc-container"></div>
+    </div>
+
+    <div id="top-header">
+        <div class="course-info">
+            <div class="course-title">First Aid Course</div>
+            <div class="uni-title">Medical-Surgical Nursing Department</div>
+            <div class="uni-title"> Faculty of Nursing - Reyada University</div>
+        </div>
+    </div>
+
+    <div id="main-area" onclick="hideUI(event)">
+        <div id="loader">
+            <div class="loader-content">
+                <div class="pulse-ring"></div>
+                <div class="loader-text">جاري التجهيز...</div>
+            </div>
+        </div>
+
+        <div id="book-viewport">
+            <div id="flip-lock-overlay"></div>
+            <div id="book-container"></div>
+        </div>
+    </div>
+
+    <div id="bottom-toolbar">
+        <div class="toolbar-scroll">
+            
+            <div class="tool-group">
+                <button class="btn-tool" onclick="toggleSidebar()" title="الفهرس"><i class="fas fa-bars"></i></button>
+            </div>
+
+            <div class="tool-group">
+                <button class="btn-tool active" id="btn-hand" onclick="setMode('read')" title="قراءة"><i class="fas fa-hand-pointer"></i></button>
+                <button class="btn-tool" id="btn-pen" onclick="setMode('draw', 'pen')" title="قلم"><i class="fas fa-pen"></i></button>
+                <button class="btn-tool" id="btn-highlight" onclick="setMode('draw', 'highlight')" title="قلم تمييز"><i class="fas fa-highlighter"></i></button>
+                <button class="btn-tool" id="btn-eraser" onclick="setMode('erase')" title="ممحاة"><i class="fas fa-eraser"></i></button>
+                <div class="sep"></div>
+                <button class="btn-tool" id="btn-bookmark" onclick="toggleBookmark()" title="إضافة علامة"><i class="far fa-bookmark"></i></button>
+            </div>
+
+            <div class="tool-group" style="display:none;" id="drawing-options">
+                <input type="color" id="pen-color" class="color-picker" value="#000000" oninput="updateBrush()">
+                <input type="range" id="pen-width" min="1" max="20" value="3" style="width:70px" oninput="updateBrush()">
+                <button class="btn-tool" onclick="clearCurrentPage()" title="مسح الصفحة"><i class="fas fa-trash-alt"></i></button>
+            </div>
+            
+            <div class="tool-group">
+                <button class="btn-tool" id="btn-lock" onclick="toggleFlipLock()" title="قفل/فتح التقليب"><i class="fas fa-unlock"></i></button>
+            </div>
+
+            <div class="tool-group">
+                <button class="btn-tool" id="btn-speak" onclick="toggleSpeech()" title="قراءة صوتية"><i class="fas fa-volume-up"></i></button>
+                <div class="sep"></div>
+                <button class="btn-tool" onclick="zoomBook(0.2)" title="تكبير"><i class="fas fa-search-plus"></i></button>
+                <button class="btn-tool" onclick="zoomBook(-0.2)" title="تصغير"><i class="fas fa-search-minus"></i></button>
+                <div class="sep"></div>
+                <button class="btn-tool" id="btn-prev" onclick="if(!isFlipLocked) bookFlip.flipPrev()"><i class="fas fa-chevron-right"></i></button>
+                <span id="page-num" style="font-size:14px; color:#4b5563; min-width:50px; text-align:center; font-weight:bold;">0 / 0</span>
+                <button class="btn-tool" id="btn-next" onclick="if(!isFlipLocked) bookFlip.flipNext()"><i class="fas fa-chevron-left"></i></button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
